@@ -11,47 +11,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wallet.dto.UserDTO;
-import com.wallet.entity.User;
+import com.wallet.dto.WalletDTO;
+import com.wallet.entity.Wallet;
 import com.wallet.response.Response;
-import com.wallet.service.UserService;
-import com.wallet.util.Bcrypt;
+import com.wallet.service.WalletService;
 
 @RestController
-@RequestMapping("user")
-public class UserController {
-	
+@RequestMapping("wallet")
+public class WalletController {
+
 	@Autowired
-	private UserService service;
+	private WalletService service;
 	
 	@PostMapping
-	public ResponseEntity<Response<UserDTO>> create(@Valid @RequestBody UserDTO userDTO, BindingResult result ) {
-		Response<UserDTO> response = new Response<UserDTO>();
-		
+	public ResponseEntity<Response<WalletDTO>> create(@Valid @RequestBody WalletDTO walletDTO, BindingResult result ) {
+		Response<WalletDTO> response = new Response<WalletDTO>();
 		if (result.hasErrors()) {
 			result.getAllErrors().forEach(e -> response.addError(e.getDefaultMessage()));
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
-		User user = service.save(convertTo(userDTO));
-		response.setData(convertTo(user));
+		Wallet wallet = service.save(convert(walletDTO));
+		response.setData(convert(wallet));
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
-	private User convertTo(UserDTO dto) {
-		User user = new User();
-		user.setId(dto.getId());
-		user.setEmail(dto.getEmail());
-		user.setName(dto.getName());
-		user.setPassword(Bcrypt.encrypt(dto.getPassword()));
-		return user;
+	private Wallet convert(WalletDTO dto) {
+		Wallet wallet = new Wallet();
+		wallet.setId(dto.getId());
+		wallet.setName(dto.getName());
+		wallet.setValue(dto.getValue());
+		return wallet;
 	}
 	
-	private UserDTO convertTo(User user) {
-		UserDTO dto = new UserDTO();
-		dto.setId(user.getId());
-		dto.setEmail(user.getEmail());
-		dto.setName(user.getName());
-		
+	private WalletDTO convert(Wallet wallet) {
+		WalletDTO dto = new WalletDTO();
+		dto.setId(wallet.getId());
+		dto.setName(wallet.getName());
+		dto.setValue(wallet.getValue());
 		return dto;
 	}
 }
